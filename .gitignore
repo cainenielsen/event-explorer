@@ -1,0 +1,18 @@
+# build artifacts
+/bin/
+*.exe
+*.test
+*.out
+
+# local env overrides (none checked in; keep it that way)
+.env
+.env.*
+
+# editor/OS
+.DS_Store
+.vscode/
+.idea/
+
+# go workspace files, if anyone adds one locally
+go.work
+go.work.sum

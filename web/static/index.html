@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Explorer</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-title">
+    <span class="logo">&#9889;</span>
+    <div>
+      <h1>Event Explorer</h1>
+      <p class="subtitle">Lucene-style search over a ClickHouse-backed events table</p>
+    </div>
+  </div>
+  <div id="dataset-stats" class="dataset-stats" aria-live="polite">
+    <span class="stat-skel">loading dataset stats&hellip;</span>
+  </div>
+</header>
+
+<main>
+  <section class="search-panel">
+    <form id="search-form" autocomplete="off">
+      <div class="search-row">
+        <input
+          id="query-input"
+          type="text"
+          name="q"
+          placeholder='owner_id:usr_42   ·   type:purchase AND source:web   ·   amount:&gt;100   ·   bare_term (searches everything)'
+          spellcheck="false"
+        >
+        <button type="submit" id="search-btn">Search</button>
+      </div>
+      <div class="search-controls">
+        <label>Sort
+          <select id="sort-select" name="sort">
+            <option value="created_at" selected>time</option>
+            <option value="event_type">event type</option>
+            <option value="source">source</option>
+          </select>
+        </label>
+        <label>Order
+          <select id="order-select" name="order">
+            <option value="desc" selected>newest first</option>
+            <option value="asc">oldest first</option>
+          </select>
+        </label>
+        <label>Page size
+          <select id="page-size-select" name="page_size">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+            <option value="250">250</option>
+          </select>
+        </label>
+        <div class="examples" id="examples" aria-label="example queries"></div>
+      </div>
+    </form>
+    <div id="query-error" class="query-error" hidden></div>
+  </section>
+
+  <section class="columns-toolbar">
+    <span class="columns-toolbar-label">Columns</span>
+    <div id="column-chips" class="column-chips"></div>
+    <form id="add-column-form" class="add-column">
+      <input
+        type="text"
+        id="add-column-input"
+        list="attr-key-suggestions"
+        placeholder="attribute key, e.g. owner_id"
+        spellcheck="false"
+        autocomplete="off"
+      >
+      <datalist id="attr-key-suggestions"></datalist>
+      <button type="submit">+ Add column</button>
+    </form>
+  </section>
+
+  <section class="results-meta" id="results-meta"></section>
+
+  <section class="results">
+    <div class="table-scroll">
+      <table id="results-table">
+        <thead>
+          <tr id="results-head-row"></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+    <div id="empty-state" class="empty-state" hidden>No events match this query.</div>
+    <div id="loading-state" class="loading-state" hidden>Querying&hellip;</div>
+  </section>
+
+  <nav class="pagination" id="pagination"></nav>
+</main>
+
+<div id="detail-overlay" class="detail-overlay" hidden>
+  <div class="detail-panel">
+    <button class="detail-close" id="detail-close" aria-label="Close">&times;</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

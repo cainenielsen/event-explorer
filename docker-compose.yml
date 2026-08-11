@@ -1,0 +1,68 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: eventquery-clickhouse
+    ports:
+      - "8123:8123" # HTTP interface / play UI
+      - "9000:9000" # native protocol, used by the Go client
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    environment:
+      # The official image restricts the 'default' user to localhost-only
+      # connections when neither of these is set, which breaks auth from
+      # the api/seed containers over the docker network. Setting a password
+      # here lifts that restriction for the 'default' user.
+      CLICKHOUSE_PASSWORD: eventquery
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--password", "eventquery", "--query", "SELECT 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventquery-api
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      CLICKHOUSE_ADDR: clickhouse:9000
+      CLICKHOUSE_DATABASE: eventsdb
+      CLICKHOUSE_PASSWORD: eventquery
+      HTTP_ADDR: ":8080"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # One-shot seeder. Not started by a plain `docker compose up` (it's
+  # behind the "seed" profile) — run it explicitly:
+  #   docker compose --profile seed run --rm seed
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventquery-seed
+    entrypoint: ["/usr/local/bin/seed"]
+    command: ["-count=1000000"]
+    profiles: ["seed"]
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      CLICKHOUSE_ADDR: clickhouse:9000
+      CLICKHOUSE_DATABASE: eventsdb
+      CLICKHOUSE_PASSWORD: eventquery
+
+volumes:
+  clickhouse-data:
