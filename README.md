@@ -14,6 +14,8 @@ not, at a million-plus rows on a laptop. [How this stays fast](#how-this-stays-f
 below goes through the actual mechanism — which ClickHouse features are
 doing the work and why, traced through a real query.
 
+![Event Explorer search UI: query bar, example query chips, a "type:book AND owner_id:usr_00042" search narrowed to 9 matches, user-managed result columns, and a results table](docs/screenshot.png)
+
 ## Stack
 
 - **ClickHouse** — storage. One `events` table, `MergeTree`, indexed for
