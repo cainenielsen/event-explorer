@@ -5,7 +5,7 @@ go 1.26.5
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.48.0
 	github.com/danielgtaylor/huma/v2 v2.39.1
-	github.com/go-chi/chi/v5 v5.3.1
+	github.com/go-chi/chi/v5 v5.4.0
 	github.com/google/uuid v1.6.0
 	github.com/grindlemire/go-lucene v0.2.1
 )
